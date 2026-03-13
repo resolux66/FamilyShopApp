@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.production.local
+.dev.vars
+*.local
+
+# Wrangler
+.wrangler/
+
+# Claude
+.claude/
+
+# OS
+.DS_Store

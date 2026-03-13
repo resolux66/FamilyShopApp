@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Print CSS */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* Hide the entire app chrome, show only print view */
+  body > #root > div > header,
+  body > #root > div > nav {
+    display: none !important;
+  }
+}

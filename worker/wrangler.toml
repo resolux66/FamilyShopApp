@@ -1,0 +1,21 @@
+name = "familycart-worker"
+main = "src/index.ts"
+compatibility_date = "2024-07-25"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "familycart-db"
+database_id = "c00ef139-d571-4f33-af30-ebab34311255"
+
+[[durable_objects.bindings]]
+name = "LIST_DO"
+class_name = "ListDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ListDO"]
+
+[vars]
+APP_URL = "https://familycart.jozefmrazik.co.uk"
+
