@@ -5,8 +5,7 @@ dist/
 .env.production.local
 .dev.vars
 *.local
-FamilyCart-PRD-v3-FINAL.docx
-README2.md
+
 # Wrangler
 .wrangler/
 
