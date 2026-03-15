@@ -14,6 +14,6 @@ npm install
 npm run build
 
 echo "==> Deploying frontend..."
-npx wrangler pages deploy dist --project-name familycart
+npx wrangler pages deploy dist --project-name familycart --branch main
 
 echo "==> Done!"
