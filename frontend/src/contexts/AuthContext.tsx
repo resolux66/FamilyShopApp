@@ -8,6 +8,8 @@ interface AuthContextType {
   status: AuthStatus;
   inviteId: string | null;
   inviteFamilyName: string | null;
+  isDemo: boolean;
+  startDemo: () => Promise<void>;
   refetch: () => void;
 }
 
@@ -17,8 +19,15 @@ const AuthContext = createContext<AuthContextType>({
   status: 'loading',
   inviteId: null,
   inviteFamilyName: null,
+  isDemo: false,
+  startDemo: async () => {},
   refetch: () => {},
 });
+
+function usingDemoJWT(): boolean {
+  const hasCF = !!document.cookie.match(/CF_Authorization=/);
+  return !hasCF && !!localStorage.getItem('demo_jwt');
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -26,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [inviteId, setInviteId] = useState<string | null>(null);
   const [inviteFamilyName, setInviteFamilyName] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
 
   const fetchMe = useCallback(async () => {
     setStatus('loading');
@@ -41,24 +51,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(data.user);
         setFamily(data.family || null);
         setStatus('ok');
+        setIsDemo(usingDemoJWT());
       } else if (data.status === 'invite_pending' && data.invite) {
         setInviteId(data.invite.id);
         setInviteFamilyName(data.invite.familyName);
         setStatus('invite_pending');
+        setIsDemo(false);
       } else if (data.status === 'no_access') {
         setStatus('no_access');
+        setIsDemo(false);
       } else {
         setStatus('setup_needed');
+        setIsDemo(false);
       }
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        // No JWT - CF Access should redirect, but show no_access
+        // Clear stale demo JWT if it caused the 401
+        if (usingDemoJWT()) {
+          localStorage.removeItem('demo_jwt');
+        }
         setStatus('no_access');
       } else {
         setStatus('no_access');
       }
+      setIsDemo(false);
     }
   }, []);
+
+  const startDemo = useCallback(async () => {
+    const data = await api.post<{ token: string }>('/auth/demo');
+    localStorage.setItem('demo_jwt', data.token);
+    await fetchMe();
+  }, [fetchMe]);
 
   useEffect(() => {
     fetchMe();
@@ -66,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, family, status, inviteId, inviteFamilyName, refetch: fetchMe }}
+      value={{ user, family, status, inviteId, inviteFamilyName, isDemo, startDemo, refetch: fetchMe }}
     >
       {children}
     </AuthContext.Provider>

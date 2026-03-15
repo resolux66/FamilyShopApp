@@ -193,6 +193,10 @@ lists.patch('/lists/:id', async (c) => {
 
 // DELETE /api/v1/lists/:id
 lists.delete('/lists/:id', async (c) => {
+  if (c.get('isDemo')) {
+    return c.json({ error: 'Deleting is disabled in demo mode', code: 'DEMO_RESTRICTED' }, 403);
+  }
+
   const user = c.get('user')!;
   const listId = c.req.param('id');
 
@@ -404,6 +408,10 @@ lists.patch('/lists/:id/items/:itemId', async (c) => {
 
 // DELETE /api/v1/lists/:id/items/:itemId
 lists.delete('/lists/:id/items/:itemId', async (c) => {
+  if (c.get('isDemo')) {
+    return c.json({ error: 'Deleting is disabled in demo mode', code: 'DEMO_RESTRICTED' }, 403);
+  }
+
   const user = c.get('user')!;
   const listId = c.req.param('id');
   const itemId = c.req.param('itemId');

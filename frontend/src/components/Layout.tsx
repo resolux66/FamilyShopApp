@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { ShoppingCart, Users, User, LayoutDashboard, Menu, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { DemoBanner } from './DemoBanner';
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user, family } = useAuth();
+  const { user, family, isDemo } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
@@ -18,6 +19,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {isDemo && <DemoBanner />}
       {/* Top bar */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40 no-print">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">

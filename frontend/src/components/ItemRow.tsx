@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronUp, ChevronDown, Pencil, Trash2, Check, X } from 'lucide-react';
 import type { ListItem, User } from '../types';
 import { relativeTime } from '../utils/time';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ItemRowProps {
   item: ListItem;
@@ -33,6 +34,7 @@ export function ItemRow({
   const [editQty, setEditQty] = useState(item.quantity || '');
   const [editNote, setEditNote] = useState(item.note || '');
   const [saving, setSaving] = useState(false);
+  const { isDemo } = useAuth();
 
   const canEditDelete =
     currentUser.role === 'admin' || item.added_by === currentUser.id;
@@ -175,13 +177,15 @@ export function ItemRow({
             >
               <Pencil className="w-4 h-4" />
             </button>
-            <button
-              onClick={onDelete}
-              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity min-h-[44px] min-w-[44px] flex items-center justify-center"
-              aria-label="Delete item"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+            {!isDemo && (
+              <button
+                onClick={onDelete}
+                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label="Delete item"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
           </>
         )}
       </div>

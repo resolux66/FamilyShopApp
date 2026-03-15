@@ -16,6 +16,10 @@ class_name = "ListDO"
 tag = "v1"
 new_sqlite_classes = ["ListDO"]
 
+[triggers]
+crons = ["0 0 * * *"]
+
 [vars]
 APP_URL = "https://familycart.jozefmrazik.co.uk"
+DEMO_FAMILY_ID = "demo-family-001"
 

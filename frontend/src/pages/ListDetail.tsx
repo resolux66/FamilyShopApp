@@ -28,7 +28,7 @@ interface ListDetailData {
 
 export function ListDetail() {
   const { id } = useParams<{ id: string }>();
-  const { user, family } = useAuth();
+  const { user, family, isDemo } = useAuth();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -277,7 +277,7 @@ export function ListDetail() {
           >
             <Printer className="w-5 h-5" />
           </button>
-          {canManageList && (
+          {canManageList && !isDemo && (
             <button
               onClick={() => setShowDeleteConfirm(true)}
               className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center"

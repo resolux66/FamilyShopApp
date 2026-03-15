@@ -5,11 +5,14 @@ export interface Env {
   SUPERADMIN_KEY: string;
   APP_URL: string;
   CF_ACCESS_TEAM_DOMAIN: string;
+  DEMO_SECRET: string;
+  DEMO_FAMILY_ID: string;
 }
 
 export interface Variables {
   user: User | null;
   userEmail: string;
+  isDemo: boolean;
 }
 
 export interface User {

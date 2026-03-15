@@ -1,9 +1,12 @@
 const WORKER_URL = import.meta.env.VITE_WORKER_URL || '';
 const BASE_URL = `${WORKER_URL}/api/v1`;
 
-function getCFAccessToken(): string {
+function getAuthToken(): string {
+  // Prefer CF Access JWT from cookie
   const match = document.cookie.match(/CF_Authorization=([^;]+)/);
-  return match ? match[1] : '';
+  if (match) return match[1];
+  // Fall back to demo JWT from localStorage
+  return localStorage.getItem('demo_jwt') || '';
 }
 
 export class ApiError extends Error {
@@ -25,7 +28,7 @@ export async function apiRequest<T>(
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'Cf-Access-Jwt-Assertion': getCFAccessToken(),
+      'Cf-Access-Jwt-Assertion': getAuthToken(),
       ...options.headers,
     },
   });

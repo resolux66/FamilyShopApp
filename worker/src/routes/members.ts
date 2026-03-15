@@ -46,6 +46,10 @@ members.get('/members', async (c) => {
 
 // POST /api/v1/invites — Admin only
 members.post('/invites', async (c) => {
+  if (c.get('isDemo')) {
+    return c.json({ error: 'Inviting is disabled in demo mode', code: 'DEMO_RESTRICTED' }, 403);
+  }
+
   const user = c.get('user')!;
   if (user.role !== 'admin') {
     return c.json({ error: 'Admin only', code: 'FORBIDDEN' }, 403);
