@@ -10,6 +10,7 @@ interface AuthContextType {
   inviteFamilyName: string | null;
   isDemo: boolean;
   startDemo: () => Promise<void>;
+  requestSignIn: (email: string) => Promise<void>;
   refetch: () => void;
 }
 
@@ -21,12 +22,14 @@ const AuthContext = createContext<AuthContextType>({
   inviteFamilyName: null,
   isDemo: false,
   startDemo: async () => {},
+  requestSignIn: async () => {},
   refetch: () => {},
 });
 
 function usingDemoJWT(): boolean {
   const hasCF = !!document.cookie.match(/CF_Authorization=/);
-  return !hasCF && !!localStorage.getItem('demo_jwt');
+  const hasSession = !!localStorage.getItem('session_jwt');
+  return !hasCF && !hasSession && !!localStorage.getItem('demo_jwt');
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -66,7 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        // Clear stale demo JWT if it caused the 401
+        // Clear stale JWTs
+        localStorage.removeItem('session_jwt');
         if (usingDemoJWT()) {
           localStorage.removeItem('demo_jwt');
         }
@@ -84,13 +88,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await fetchMe();
   }, [fetchMe]);
 
+  const requestSignIn = useCallback(async (email: string) => {
+    await api.post('/auth/signin/request', { email });
+  }, []);
+
   useEffect(() => {
+    // Handle magic-link redirect: ?session=<jwt>
+    const params = new URLSearchParams(window.location.search);
+    const session = params.get('session');
+    if (session) {
+      localStorage.setItem('session_jwt', session);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
     fetchMe();
   }, [fetchMe]);
 
   return (
     <AuthContext.Provider
-      value={{ user, family, status, inviteId, inviteFamilyName, isDemo, startDemo, refetch: fetchMe }}
+      value={{ user, family, status, inviteId, inviteFamilyName, isDemo, startDemo, requestSignIn, refetch: fetchMe }}
     >
       {children}
     </AuthContext.Provider>

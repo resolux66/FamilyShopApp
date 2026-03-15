@@ -22,7 +22,10 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
     // Allow public/setup pages through regardless
     const publicPaths = ['/join', '/setup', '/welcome', '/403'];
-    if (publicPaths.some((p) => location.pathname.startsWith(p))) return;
+    if (publicPaths.some((p) => location.pathname.startsWith(p))) {
+      if (status === 'ok' && user) navigate('/', { replace: true });
+      return;
+    }
 
     if (status === 'no_access') {
       navigate('/403', { replace: true });

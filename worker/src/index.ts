@@ -5,6 +5,7 @@ import { authMiddleware } from './auth';
 import { ListDO } from './durable-objects/ListDO';
 import authRoutes from './routes/auth';
 import demoRoutes from './routes/demo';
+import signinRoutes from './routes/signin';
 import superadminRoutes from './routes/superadmin';
 import memberRoutes from './routes/members';
 import listRoutes from './routes/lists';
@@ -35,6 +36,9 @@ app.route('/api/v1/superadmin', superadminRoutes);
 
 // Demo login — no auth middleware required
 app.route('/api/v1/auth', demoRoutes);
+
+// Magic link sign-in — no auth middleware required
+app.route('/api/v1/auth', signinRoutes);
 
 // Apply auth middleware to all /api/v1/* routes
 app.use('/api/v1/*', authMiddleware);

@@ -25,7 +25,8 @@ async function verifyDemoJWT(token: string, secret: string): Promise<Record<stri
     ['verify']
   );
 
-  const sigPad = parts[2].replace(/-/g, '+').replace(/_/g, '/') + '==';
+  const sigStr = parts[2].replace(/-/g, '+').replace(/_/g, '/');
+  const sigPad = sigStr + '='.repeat((4 - (sigStr.length % 4)) % 4);
   const sigBytes = Uint8Array.from(atob(sigPad), (c) => c.charCodeAt(0));
 
   const valid = await crypto.subtle.verify('HMAC', key, sigBytes, new TextEncoder().encode(data));
@@ -53,15 +54,18 @@ export const authMiddleware: MiddlewareHandler<{ Bindings: Env; Variables: Varia
     const header = JSON.parse(headerStr);
 
     if (header.alg === 'HS256') {
-      // Demo JWT — verify HMAC-SHA256 signature with DEMO_SECRET
+      // Demo or session JWT — verify HMAC-SHA256 signature with DEMO_SECRET
       const payload = await verifyDemoJWT(jwt, c.env.DEMO_SECRET);
-      if (!payload.demo) throw new Error('Not a demo token');
       email = payload.email as string;
       const exp = payload.exp as number | undefined;
       if (exp && exp < Math.floor(Date.now() / 1000)) {
         return c.json({ error: 'JWT expired', code: 'JWT_EXPIRED' }, 401);
       }
-      isDemo = true;
+      if (payload.demo) {
+        isDemo = true;
+      } else if (payload.type !== 'session') {
+        throw new Error('Unknown HS256 token type');
+      }
     } else {
       // CF Access JWT — decode payload without signature verification (CF handles that at the edge)
       const payload = decodeJWTPayload(jwt);

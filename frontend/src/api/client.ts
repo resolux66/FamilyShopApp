@@ -5,8 +5,8 @@ function getAuthToken(): string {
   // Prefer CF Access JWT from cookie
   const match = document.cookie.match(/CF_Authorization=([^;]+)/);
   if (match) return match[1];
-  // Fall back to demo JWT from localStorage
-  return localStorage.getItem('demo_jwt') || '';
+  // Fall back to magic-link session JWT, then demo JWT
+  return localStorage.getItem('session_jwt') || localStorage.getItem('demo_jwt') || '';
 }
 
 export class ApiError extends Error {
